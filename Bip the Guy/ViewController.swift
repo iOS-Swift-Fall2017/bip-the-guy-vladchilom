@@ -14,9 +14,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   
   @IBOutlet weak var imageToPunch: UIImageView!
   var audioPlayer = AVAudioPlayer()
+  var imagePicker = UIImagePickerController()
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    imagePicker.delegate = self
   }
   
   func animateImage() {
@@ -39,10 +41,35 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
   }
   
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    let selectedImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+    imageToPunch.image = selectedImage
+    dismiss(animated: true, completion: nil)
+  }
+  
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    dismiss(animated: true, completion: nil)
+  }
+  
+  func showAlert(title: String, message: String) {
+    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+    alertController.addAction(defaultAction)
+    present(alertController, animated: true, completion: nil)
+  }
+  
   @IBAction func libraryPressed(_ sender: UIButton) {
+    imagePicker.sourceType = .photoLibrary
+    present(imagePicker, animated: true, completion: nil)
   }
   
   @IBAction func cameraPressed(_ sender: UIButton) {
+    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+      imagePicker.sourceType = .camera
+      present(imagePicker, animated: true, completion: nil)
+    } else {
+      showAlert(title: "Camera Not Available", message: "There is no camera available on this device.")
+    }
   }
   
   @IBAction func imageTapped(_ sender: UITapGestureRecognizer) {
